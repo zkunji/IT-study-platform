@@ -97,4 +97,9 @@ public class UserController {
         Integer uid = (Integer) map.get("uid");
         return Result.success(userService.updateAvatar(avatarUrl, uid));
     }
+
+    @GetMapping("/logout")
+    public Result logout(){
+        return Result.success("测试");
+    }
 }
