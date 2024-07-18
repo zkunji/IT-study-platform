@@ -1,5 +1,8 @@
 package test.service.impl;
 
+import cn.dev33.satoken.stp.StpUtil;
+import cn.dev33.satoken.util.SaResult;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
@@ -9,8 +12,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.stereotype.Service;
+import test.mapper.UserAuthorityMapper;
 import test.mapper.UserMapper;
 import test.pojos.User;
+import test.pojos.UserAuthority;
 import test.result.Result;
 import test.service.UserService;
 import test.utils.BCryptUtil;
@@ -28,6 +33,8 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     @Autowired
     private UserMapper userMapper;
     @Autowired
+    private UserAuthorityMapper userAuthorityMapper;
+    @Autowired
     private StringRedisTemplate stringRedisTemplate;
 
     @Override
@@ -41,7 +48,9 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
             String password = BCryptUtil.hashPassword(param.get("password"));
             User user = new User(username, password);
             user.setAccount(UserAccountGeneratorUtil.GenAccId());
+            UserAuthority au = new UserAuthority(user.getUid(), "user.add,user.update,user.get,user.delete", "user");
             int res = userMapper.insert(user);
+            userAuthorityMapper.insert(au);
             if (res > 0) {
                 return Result.success(user);
             } else {
@@ -55,14 +64,34 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     }
 
     @Override
-    public Result login(String username, String password, String token) {
+    public SaResult login(String username, String password/*, String token*/) {
+//        if (check(username, password)) {
+//            return Result.success(200, "登录成功", token);
+//        }
+//        return Result.fail("登陆失败");
+        LambdaQueryWrapper<User> lqw = new LambdaQueryWrapper<>();
+        lqw.eq(User::getUsername, username);
+        User user = userMapper.selectList(lqw).get(0);
         if (check(username, password)) {
-            return Result.success(200, "登录成功", token);
+            StpUtil.login(user.getUid());
+            //System.out.println(StpUtil.getTokenValue());
+            System.out.println(StpUtil.getTokenInfo());
+            System.out.println(StpUtil.getTokenSession());
+            //System.out.println(StpUtil.getPermissionList());//获取权限测试
+            return SaResult.ok("登录成功");
         }
-        return Result.fail("登陆失败");
+        return SaResult.error("用户名或密码错误");
 
     }
 
+    @Override
+    public SaResult logout(Integer uid) {
+        if (StpUtil.isLogin()) {
+            StpUtil.logout(uid);
+            return SaResult.ok("登出成功");
+        }
+        return SaResult.error("用户未登录");
+    }
 
     @Override
     public boolean check(String username, String password) {

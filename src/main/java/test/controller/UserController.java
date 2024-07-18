@@ -1,22 +1,19 @@
 package test.controller;
 
+import cn.dev33.satoken.util.SaResult;
 import jakarta.validation.constraints.Pattern;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.StringRedisTemplate;
-import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import test.pojos.User;
 import test.result.Result;
 import test.service.UserService;
-import test.utils.JwtUtil;
 import test.utils.ThreadLocalUtil;
 
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
-import java.util.concurrent.TimeUnit;
 
 @Slf4j
 @RestController
@@ -44,24 +41,30 @@ public class UserController {
     }
 
     @PostMapping("/login")
-    public Result login(@Pattern(regexp = "[\\u4e00-\\u9fa5a-zA-Z0-9\\s,.'\";!?()]+")
-                        String username, String password) {
-        long start = System.currentTimeMillis();
-        User loginUser = userService.findByUsername(username);
-//        Map<String, String> param = new HashMap<>();
-//        param.put("username", username);
-//        param.put("password", password);
-        Map<String, Object> claims = new HashMap<>();
-        claims.put("uid", loginUser.getUid());
-        claims.put("username", loginUser.getUsername());
-        //claims.put("password", loginUser.getPassword());
-        String token = JwtUtil.genToken(claims);
-        ValueOperations<String, String> operations = stringRedisTemplate.opsForValue();
-        operations.set(token, token, 1, TimeUnit.HOURS);
-        Result login = userService.login(username, password, token);
-        log.info("登录时间：{}ms", System.currentTimeMillis() - start);
-        return login;
+    public SaResult login(@Pattern(regexp = "[\\u4e00-\\u9fa5a-zA-Z0-9\\s,.'\";!?()]+")
+                          String username, String password) {
+//        long start = System.currentTimeMillis();
+//        User loginUser = userService.findByUsername(username);
+////        Map<String, String> param = new HashMap<>();
+////        param.put("username", username);
+////        param.put("password", password);
+//        Map<String, Object> claims = new HashMap<>();
+//        claims.put("uid", loginUser.getUid());
+//        claims.put("username", loginUser.getUsername());
+//        //claims.put("password", loginUser.getPassword());
+//        String token = JwtUtil.genToken(claims);
+//        ValueOperations<String, String> operations = stringRedisTemplate.opsForValue();
+//        operations.set(token, token, 1, TimeUnit.HOURS);
+//        Result login = userService.login(username, password, token);
+//        log.info("登录时间：{}ms", System.currentTimeMillis() - start);
 
+        return userService.login(username, password);
+
+    }
+
+    @GetMapping("/logout")
+    public SaResult logout(Integer uid) {
+        return userService.logout(uid);
     }
 
     @GetMapping("/userInfo")
@@ -98,8 +101,4 @@ public class UserController {
         return Result.success(userService.updateAvatar(avatarUrl, uid));
     }
 
-    @GetMapping("/logout")
-    public Result logout(){
-        return Result.success("测试");
-    }
 }

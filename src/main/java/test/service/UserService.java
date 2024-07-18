@@ -1,5 +1,6 @@
 package test.service;
 
+import cn.dev33.satoken.util.SaResult;
 import com.baomidou.mybatisplus.extension.service.IService;
 import test.pojos.User;
 import test.result.Result;
@@ -10,7 +11,9 @@ import java.util.Map;
 public interface UserService extends IService<User> {
     Result registration(Map<String, String> param);
 
-    Result login(String username, String password,String token);
+    SaResult login(String username, String password/*, String token*/);
+
+    SaResult logout(Integer uid);
 
     boolean check(String username, String password);
 

@@ -1,3 +1,4 @@
+/*
 package test.interceptors;
 
 import jakarta.servlet.http.HttpServletRequest;
@@ -43,3 +44,4 @@ public class LoginInterceptor implements HandlerInterceptor {
         }
     }
 }
+*/
