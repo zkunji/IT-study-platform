@@ -27,7 +27,7 @@ public interface UserService extends IService<User> {
 
     Result updateUserInfo(Map<String, String> user, Integer uid);
 
-    Result updateUserPassword(Map<String, String> param, Integer uid, String token);
+    Result updateUserPassword(Map<String, String> param, Integer uid);
 
     Result updateAvatar(String avatarUrl, Integer uid);
 }

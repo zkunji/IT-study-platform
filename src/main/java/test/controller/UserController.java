@@ -10,7 +10,8 @@ import org.springframework.web.bind.annotation.*;
 import test.pojos.User;
 import test.result.Result;
 import test.service.UserService;
-import test.utils.ThreadLocalUtil;
+
+import test.utils.TokenParseUtil;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -69,9 +70,11 @@ public class UserController {
 
     @GetMapping("/userInfo")
     public Result showUserInfo() {
-        Map<String, Object> map = ThreadLocalUtil.get();
-        String username = (String) map.get("username");
-        User u = userService.findByUsername(username);
+//        Map<String, Object> map = ThreadLocalUtil.get();
+//        String username = (String) map.get("username");
+//        User u = userService.findByUsername(username);
+        Integer uid = TokenParseUtil.getUID();
+        User u = userService.findByUserid(uid).get(0);
         /*Map<String, String> userInfo = new LinkedHashMap<>();
         userInfo.put("username", u.getUsername());
         userInfo.put("account", u.getAccount());
@@ -82,22 +85,19 @@ public class UserController {
 
     @PutMapping("/updateInfo")
     public Result updateUserInfo(@RequestBody Map<String, String> param) {
-        Map<String, Object> map = ThreadLocalUtil.get();
-        Integer uid = (Integer) map.get("uid");
+        Integer uid = TokenParseUtil.getUID();
         return userService.updateUserInfo(param, uid);
     }
 
     @PostMapping("/reset_pwd")
-    public Result resetPwd(@RequestBody Map<String, String> param, @RequestHeader("Authorization") String token) {
-        Map<String, Object> map = ThreadLocalUtil.get();
-        Integer uid = (Integer) map.get("uid");
-        return userService.updateUserPassword(param, uid, token);
+    public Result resetPwd(@RequestBody Map<String, String> param) {
+        Integer uid = TokenParseUtil.getUID();
+        return userService.updateUserPassword(param, uid);
     }
 
     @PatchMapping("/updateAvatar")
     public Result updateAvatar(@RequestBody String avatarUrl) {
-        Map<String, Object> map = ThreadLocalUtil.get();
-        Integer uid = (Integer) map.get("uid");
+        Integer uid = TokenParseUtil.getUID();
         return Result.success(userService.updateAvatar(avatarUrl, uid));
     }
 

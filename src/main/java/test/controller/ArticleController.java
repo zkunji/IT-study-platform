@@ -19,7 +19,7 @@ public class ArticleController {
     }
 
     //分页查询
-    @GetMapping
+    @GetMapping("/list")
     public Result showArticleList(@RequestParam(required = false) Integer categoryId) {
         return articleService.showArticleList(categoryId);
 

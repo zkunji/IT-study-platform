@@ -21,10 +21,14 @@ spring:
       password: root123456
       lettuce:
         pool:
-          max-wait: 100 #连接等待时间
-          max-idle: 8 #最大空闲连接
-          min-idle: 0 #最小空闲连接
-          max-active: 10 #最大连接
+          # 连接池最大连接数
+          max-active: 200
+          # 连接池最大阻塞等待时间（使用负值表示没有限制）
+          max-wait: -1ms
+          # 连接池中的最大空闲连接
+          max-idle: 10
+          # 连接池中的最小空闲连接
+          min-idle: 0
       timeout: 3000
 
 
@@ -38,11 +42,16 @@ sa-token:
     # 是否允许同一账号多地同时登录 （为 true 时允许一起登录, 为 false 时新登录挤掉旧登录）
   is-concurrent: true
     # 在多人登录同一账号时，是否共用一个 token （为 true 时所有登录共用一个 token, 为 false 时每次登录新建一个 token）
-  is-share: true
+  is-share: false
+
     # token 风格（默认可取值：uuid、simple-uuid、random-32、random-64、random-128、tik）
   token-style: uuid
     # 是否输出操作日志
   is-log: true
+
+  #允许的最大登录数
+  max-login-count: 4
+  token-session-check-login: true
 
 
 

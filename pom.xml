@@ -108,7 +108,16 @@
             <artifactId>sa-token-spring-boot3-starter</artifactId>
             <version>1.38.0</version>
         </dependency>
-
+        <dependency>
+            <groupId>cn.dev33</groupId>
+            <artifactId>sa-token-redis-jackson</artifactId>
+            <version>1.38.0</version>
+        </dependency>
+        <!-- 提供Redis连接池 -->
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-pool2</artifactId>
+        </dependency>
 
 
     </dependencies>

@@ -1,5 +1,7 @@
 package test.service.impl;
 
+import cn.dev33.satoken.stp.SaLoginModel;
+import cn.dev33.satoken.stp.SaTokenInfo;
 import cn.dev33.satoken.stp.StpUtil;
 import cn.dev33.satoken.util.SaResult;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
@@ -34,8 +36,9 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     private UserMapper userMapper;
     @Autowired
     private UserAuthorityMapper userAuthorityMapper;
-    @Autowired
-    private StringRedisTemplate stringRedisTemplate;
+    //暂时注释一下
+   /* @Autowired
+    private StringRedisTemplate;*/
 
     @Override
     public Result registration(Map<String, String> param) {
@@ -73,12 +76,10 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         lqw.eq(User::getUsername, username);
         User user = userMapper.selectList(lqw).get(0);
         if (check(username, password)) {
-            StpUtil.login(user.getUid());
-            //System.out.println(StpUtil.getTokenValue());
-            System.out.println(StpUtil.getTokenInfo());
-            System.out.println(StpUtil.getTokenSession());
-            //System.out.println(StpUtil.getPermissionList());//获取权限测试
-            return SaResult.ok("登录成功");
+            StpUtil.login(user.getUid(),new SaLoginModel().setTimeout(60 * 60 * 24 * 30));
+            SaTokenInfo tokenInfo = StpUtil.getTokenInfo();
+            //System.out.println("tokenValue"+tokenInfo);
+            return SaResult.data(tokenInfo);
         }
         return SaResult.error("用户名或密码错误");
 
@@ -145,7 +146,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
 
     //更新用户密码
     @Override
-    public Result updateUserPassword(Map<String, String> param, Integer uid, String token) {
+    public Result updateUserPassword(Map<String, String> param, Integer uid) {
         String oldPwd = param.get("old_pwd");
         String newPwd = param.get("new_pwd");
         String reNewPwd = param.get("re_new_pwd");
@@ -153,7 +154,6 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         updateWrapper.eq("uid", uid); // 添加UID条件
         System.out.println("old:" + oldPwd);
         boolean flag = BCryptUtil.verifyPassword(oldPwd, findByUserid(uid).get(0).getPassword());
-        //System.out.println(flag);
         if (!flag) {
             return Result.fail("密码错误");
         }
@@ -163,8 +163,10 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         updateWrapper.set("password", BCryptUtil.hashPassword(newPwd));
         boolean update_pwd = userMapper.update(updateWrapper) > 0;
         if (update_pwd) {
-            ValueOperations<String, String> operations = stringRedisTemplate.opsForValue();
-            operations.getOperations().delete(token);
+
+            //暂时注释一下，等学明白redis再说
+/*            ValueOperations<String, String> operations = stringRedisTemplate.opsForValue();
+            operations.getOperations().delete();*/
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
             String formattedDateTime = LocalDateTime.now().format(formatter);
             return Result.success(200, "密码更新成功", formattedDateTime);
