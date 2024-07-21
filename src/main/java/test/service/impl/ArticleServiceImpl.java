@@ -14,7 +14,7 @@ import test.pojos.Article;
 import test.pojos.PageBean;
 import test.result.Result;
 import test.service.ArticleService;
-import test.utils.ThreadLocalUtil;
+import test.utils.TokenParseUtil;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -26,12 +26,14 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article> impl
     private ArticleMapper articleMapper;
     @Autowired
     private CategoryMapper categoryMapper;
+    public static final String STATE = "已发布";
 
     //添加文章
     @Override
     public Result addArticle(Article article) {
-        Map<String, Object> map = ThreadLocalUtil.get();
-        Integer uid = (Integer) map.get("uid");
+//        Map<String, Object> map = ThreadLocalUtil.get();
+//        Integer uid = (Integer) map.get("uid");
+        Integer uid = TokenParseUtil.getUID();
         //LambdaQueryWrapper<Category> lqw = new LambdaQueryWrapper<>();
         article.setCreateUser(uid);
         //System.out.println(article.getCoverImg());
@@ -40,7 +42,7 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article> impl
         if (flag > 0) {
             return Result.success(article);
         }
-        return Result.fail("新增文章失败");
+        return Result.fail("发布文章失败");
     }
 
     //构造分页查询
@@ -57,13 +59,13 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article> impl
     public Result showArticleList(Integer categoryId) {
         if (categoryId != null) {
             LambdaQueryWrapper<Article> articleLambdaQueryWrapper = Wrappers.lambdaQuery();
-            articleLambdaQueryWrapper.like(Article::getCategoryId, categoryId);
+            articleLambdaQueryWrapper.allEq(Map.of(Article::getState, STATE, Article::getCategoryId, categoryId));
             Page<Article> articlePage = new Page<>(1, 10);
             PageBean<Article> list = fetchArticles(articleLambdaQueryWrapper, articlePage);
             return Result.success(200, "文章查询成功", list);
         } else {
             LambdaQueryWrapper<Article> articleLambdaQueryWrapper = Wrappers.lambdaQuery();
-            //articleLambdaQueryWrapper.like(Article::getCategoryId, categoryId);
+            articleLambdaQueryWrapper.like(Article::getState, "已发布");
             Page<Article> articlePage = new Page<>(1, 10);
             PageBean<Article> list = fetchArticles(articleLambdaQueryWrapper, articlePage);
             return Result.success(200, "文章查询成功", list);
@@ -74,10 +76,9 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article> impl
     //查询用户文章
     @Override
     public Result searchUserArticle(Integer uId) {
-        Map<String, Object> map = ThreadLocalUtil.get();
-        Integer uid = (Integer) map.get("uid");
+        Integer uid = TokenParseUtil.getUID();
         LambdaQueryWrapper<Article> articleLambdaQueryWrapper = Wrappers.lambdaQuery();
-        articleLambdaQueryWrapper.like(Article::getCreateUser, uid);
+        articleLambdaQueryWrapper.allEq(Map.of(Article::getCreateUser, uid, Article::getState, STATE));
         Page<Article> articlePage = new Page<>(1, 10);
         PageBean<Article> list = fetchArticles(articleLambdaQueryWrapper, articlePage);
         return Result.success(200, "文章查询成功", list);
@@ -110,9 +111,9 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article> impl
         if (article.getCoverImg() != null) {
             update.set(Article::getCoverImg, article.getCoverImg());
         }
-        if (article.getState() != null) {
+        /*if (article.getState() != null) {
             update.set(Article::getState, article.getState());
-        }
+        }*/
         if (article.getCategoryId() != null) {
             update.set(Article::getCategoryId, article.getCategoryId());
         }
@@ -124,16 +125,18 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article> impl
         return Result.fail("更新失败");
     }
 
+
     @Override
     public Result searchArticleById(Integer id) {
         return Result.success(categoryMapper.selectById(id));
     }
 
+
     //模糊查询
     @Override
     public Result fuzzyQuery(String fields) {
         LambdaQueryWrapper<Article> lqw = new LambdaQueryWrapper<>();
-        lqw.like(Article::getTitle, fields);
+        lqw.like(Article::getTitle, fields).and(lqw1 -> lqw1.eq(Article::getState, STATE));
         List<Article> articles = articleMapper.selectList(lqw);
         return Result.success(articles);
     }

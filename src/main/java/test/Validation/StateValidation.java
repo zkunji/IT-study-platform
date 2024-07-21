@@ -16,6 +16,6 @@ public class StateValidation implements ConstraintValidator<State, String> {
         if (s == null) {
             return false;
         }
-        return s.equals("已开课") || s.equals("草稿");
+        return s.equals("已发布") || s.equals("审核中");
     }
 }
