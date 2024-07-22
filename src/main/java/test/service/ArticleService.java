@@ -1,5 +1,6 @@
 package test.service;
 
+import cn.dev33.satoken.util.SaResult;
 import com.baomidou.mybatisplus.extension.service.IService;
 import test.pojos.Article;
 import test.result.Result;
@@ -13,6 +14,8 @@ public interface ArticleService extends IService<Article> {
     Result deleteArticle(Integer categoryId);
 
     Result searchUserArticle(Integer uId);
+
+    //SaResult searchOtherUserArticle(Integer uid);
 
     Result updateArticle(Article article);
 

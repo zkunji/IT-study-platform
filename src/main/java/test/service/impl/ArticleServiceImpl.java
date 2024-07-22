@@ -65,7 +65,7 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article> impl
             return Result.success(200, "文章查询成功", list);
         } else {
             LambdaQueryWrapper<Article> articleLambdaQueryWrapper = Wrappers.lambdaQuery();
-            articleLambdaQueryWrapper.like(Article::getState, "已发布");
+            articleLambdaQueryWrapper.like(Article::getState, STATE);
             Page<Article> articlePage = new Page<>(1, 10);
             PageBean<Article> list = fetchArticles(articleLambdaQueryWrapper, articlePage);
             return Result.success(200, "文章查询成功", list);
@@ -75,8 +75,8 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article> impl
 
     //查询用户文章
     @Override
-    public Result searchUserArticle(Integer uId) {
-        Integer uid = TokenParseUtil.getUID();
+    public Result searchUserArticle(Integer uid) {
+        //Integer uid = TokenParseUtil.getUID();
         LambdaQueryWrapper<Article> articleLambdaQueryWrapper = Wrappers.lambdaQuery();
         articleLambdaQueryWrapper.allEq(Map.of(Article::getCreateUser, uid, Article::getState, STATE));
         Page<Article> articlePage = new Page<>(1, 10);
@@ -84,6 +84,15 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article> impl
         return Result.success(200, "文章查询成功", list);
     }
 
+//    //查询其他用户文章
+//
+//
+//    @Override
+//    public SaResult searchOtherUserArticle(Integer uid) {
+//
+//
+//        return null;
+//    }
 
     //删除文章
     @Override

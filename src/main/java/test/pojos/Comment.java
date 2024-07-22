@@ -13,11 +13,13 @@ import java.time.LocalDateTime;
 @TableName("comment")
 public class Comment {
     @TableId(type = IdType.AUTO)
-    private Integer id;
+    private Integer cid;
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime releaseTime;
     private Integer likeNumber;
     @NotEmpty(groups = Article.Add.class)
     private String content;
     private Integer articleId;
+
+    private Integer uid;
 }
