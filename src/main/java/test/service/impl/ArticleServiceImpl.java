@@ -31,8 +31,6 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article> impl
     //添加文章
     @Override
     public Result addArticle(Article article) {
-//        Map<String, Object> map = ThreadLocalUtil.get();
-//        Integer uid = (Integer) map.get("uid");
         Integer uid = TokenParseUtil.getUID();
         //LambdaQueryWrapper<Category> lqw = new LambdaQueryWrapper<>();
         article.setCreateUser(uid);
