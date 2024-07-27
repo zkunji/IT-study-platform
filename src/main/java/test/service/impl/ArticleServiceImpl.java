@@ -1,5 +1,7 @@
 package test.service.impl;
 
+import cn.dev33.satoken.stp.StpUtil;
+import cn.dev33.satoken.util.SaResult;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
@@ -12,8 +14,10 @@ import test.mapper.ArticleMapper;
 import test.mapper.CategoryMapper;
 import test.pojos.Article;
 import test.pojos.PageBean;
+import test.pojos.User;
 import test.result.Result;
 import test.service.ArticleService;
+import test.utils.BCryptUtil;
 import test.utils.TokenParseUtil;
 
 import java.time.LocalDateTime;
@@ -94,14 +98,16 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article> impl
 
     //删除文章
     @Override
-    public Result deleteArticle(Integer articleId) {
+    public SaResult deleteArticle(Integer articleId) {
+        if (!StpUtil.isSafe()) {
+            return SaResult.error("请输入密码");
+        }
         LambdaQueryWrapper<Article> delete = new LambdaQueryWrapper<>();
         delete.eq(Article::getId, articleId);
         int flag = articleMapper.delete(delete);
-        if (flag > 0) {
-            return Result.success("删除成功");
-        }
-        return Result.fail("删除失败");
+        return SaResult.ok("删除成功");
+
+        //return Result.fail("删除失败");
     }
 
     //更新文章
@@ -147,4 +153,7 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article> impl
         List<Article> articles = articleMapper.selectList(lqw);
         return Result.success(articles);
     }
+
+
+
 }

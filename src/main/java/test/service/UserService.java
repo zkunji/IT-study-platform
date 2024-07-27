@@ -30,4 +30,6 @@ public interface UserService extends IService<User> {
     Result updateUserPassword(Map<String, String> param, Integer uid);
 
     Result updateAvatar(String avatarUrl, Integer uid);
+
+    SaResult secondaryCertification(String password);
 }

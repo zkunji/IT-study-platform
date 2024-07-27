@@ -10,7 +10,6 @@ import org.springframework.web.bind.annotation.*;
 import test.pojos.User;
 import test.result.Result;
 import test.service.UserService;
-
 import test.utils.TokenParseUtil;
 
 import java.util.LinkedHashMap;
@@ -99,6 +98,11 @@ public class UserController {
     public Result updateAvatar(@RequestBody String avatarUrl) {
         Integer uid = TokenParseUtil.getUID();
         return Result.success(userService.updateAvatar(avatarUrl, uid));
+    }
+
+    @GetMapping("/openSafe")
+    public SaResult secondaryCertification(String password) {
+        return userService.secondaryCertification(password);
     }
 
 }

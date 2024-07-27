@@ -1,11 +1,16 @@
 package test.controller;
 
+import cn.dev33.satoken.util.SaResult;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import test.pojos.Article;
+import test.pojos.User;
 import test.result.Result;
 import test.service.ArticleService;
+import test.utils.BCryptUtil;
+import test.utils.TokenParseUtil;
 
 @RestController
 @RequestMapping("/article")
@@ -27,7 +32,7 @@ public class ArticleController {
 
     //根据文章id删除文章
     @PostMapping("/delete")
-    public Result deleteArticle(Integer id) {
+    public SaResult deleteArticle(Integer id) {
         return articleService.deleteArticle(id);
     }
 
@@ -53,4 +58,11 @@ public class ArticleController {
         return articleService.fuzzyQuery(str);
     }
 
+
+
+//    @GetMapping("/openSafe")
+//    public SaResult secondaryCertification(String password) {
+//
+//
+//    }
 }

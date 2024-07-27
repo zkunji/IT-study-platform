@@ -11,8 +11,6 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.redis.core.StringRedisTemplate;
-import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.stereotype.Service;
 import test.mapper.UserAuthorityMapper;
 import test.mapper.UserMapper;
@@ -21,6 +19,7 @@ import test.pojos.UserAuthority;
 import test.result.Result;
 import test.service.UserService;
 import test.utils.BCryptUtil;
+import test.utils.TokenParseUtil;
 import test.utils.UserAccountGeneratorUtil;
 
 import java.time.LocalDateTime;
@@ -76,7 +75,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         lqw.eq(User::getUsername, username);
         User user = userMapper.selectList(lqw).get(0);
         if (check(username, password)) {
-            StpUtil.login(user.getUid(),new SaLoginModel().setTimeout(60 * 60 * 24 * 30));
+            StpUtil.login(user.getUid(), new SaLoginModel().setTimeout(60 * 60 * 24 * 30));
             SaTokenInfo tokenInfo = StpUtil.getTokenInfo();
             //System.out.println("tokenValue"+tokenInfo);
             return SaResult.data(tokenInfo);
@@ -193,5 +192,19 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
             return Result.fail("操作失败，系统故障");
         }
 
+    }
+
+    @Override
+    public SaResult secondaryCertification(String password) {
+        Integer uid = TokenParseUtil.getUID();
+        LambdaQueryWrapper<User> lqw = new LambdaQueryWrapper<>();
+        lqw.eq(User::getUid, uid);
+        User user = userMapper.selectList(lqw).get(0);
+        boolean res = BCryptUtil.verifyPassword(password, user.getPassword());
+        if (res) {
+            StpUtil.openSafe(120);
+            return SaResult.ok("认证成功");
+        }
+        return SaResult.error("认证失败");
     }
 }

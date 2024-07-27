@@ -11,7 +11,7 @@ public interface ArticleService extends IService<Article> {
 
     Result showArticleList(Integer categoryId);
 
-    Result deleteArticle(Integer categoryId);
+    SaResult deleteArticle(Integer categoryId);
 
     Result searchUserArticle(Integer uId);
 
