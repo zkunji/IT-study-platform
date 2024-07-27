@@ -86,12 +86,14 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
 
     @Override
     public SaResult logout(Integer uid) {
+        StpUtil.checkLogin();
         if (StpUtil.isLogin()) {
             StpUtil.logout(uid);
             return SaResult.ok("登出成功");
         }
         return SaResult.error("用户未登录");
     }
+
 
     @Override
     public boolean check(String username, String password) {
