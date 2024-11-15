@@ -12,10 +12,8 @@ import test.pojos.Category;
 import test.result.Result;
 import test.service.CategoryService;
 import test.utils.TokenParseUtil;
-
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Map;
 
 @Service
 public class CategoryServiceImpl extends ServiceImpl<CategoryMapper, Category> implements CategoryService {
@@ -26,8 +24,6 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryMapper, Category> i
     //添加文章分类
     @Override
     public Result addCategory(@RequestBody @Validated(Category.Add.class) Category category) {
-//        Map<String, Object> map = ThreadLocalUtil.get();
-//        Integer uid = (Integer) map.get("uid");
         Integer uid = TokenParseUtil.getUID();
         category.setCreateUser(uid);
         int flag = categoryMapper.insert(category);
