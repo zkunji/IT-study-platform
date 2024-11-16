@@ -22,8 +22,8 @@ import java.util.Map;
 public class UserController {
     @Autowired
     private UserService userService;
-    @Autowired
-    private StringRedisTemplate stringRedisTemplate;
+//    @Autowired
+//    private StringRedisTemplate stringRedisTemplate;
 
     @PostMapping("/register")
     public Result register(@Pattern(regexp = "[\\u4e00-\\u9fa5a-zA-Z0-9\\s,.'\";!?()]+")
